@@ -5,6 +5,8 @@
 #include <fstream>
 #include <regex>
 
+#define CSV_HEAD "time,gep_name,counter,number\n"
+
 struct ic_file{
     std::string full_path;
     std::string gep_name; // also folder name.
@@ -20,6 +22,7 @@ struct counter_entity{
 };
 
 std::vector<counter_entity> all_counters;
+std::string out_put_file_path;
 
 // std::regex any_line_pattern("=====");
 // std::regex equal_sign_divider_pattern("=====");
@@ -50,9 +53,15 @@ std::vector<std::string> split(const std::string &str, const std::string &patter
 
 void openFile(ic_file icFile) {
     std::ifstream file(icFile.full_path);
-
     if (!file.is_open()) {
-        std::cout << "Could not open file: " << icFile.full_path << std::endl;
+        std::cout << "Could not open file to read: " << icFile.full_path << std::endl;
+        return;
+    }
+
+    // 打开已存在的文件并找到文件末尾
+    std::ofstream out(out_put_file_path, std::ios_base::app);
+    if (!out.is_open()) {
+        std::cout << "Could not open file to write: " << out_put_file_path << std::endl;
         return;
     }
 
@@ -87,6 +96,10 @@ void openFile(ic_file icFile) {
                         counter_tmp.name=counter_names_list[j];
                         counter_tmp.num=stoi(num_string_list[j]);
                         all_counters.push_back(counter_tmp);
+                        out <<counter_tmp.date_time
+                            <<"," << counter_tmp.gep_name
+                            <<"," << counter_tmp.name
+                            <<"," << counter_tmp.num << std::endl;
                     }
                 }
                 i += 6;
@@ -94,7 +107,10 @@ void openFile(ic_file icFile) {
         }
     }
 
+    // 关闭文件
     file.close();
+    out.close();
+
 }
 
 void findFiles(std::string folder, std::string pattern, std::vector<ic_file>& files) {
@@ -122,11 +138,37 @@ void findFiles(std::string folder, std::string pattern, std::vector<ic_file>& fi
     }
 }
 
+void clearFile(std::string fileName) {
+    // 创建一个输出流
+    std::ofstream out(fileName, std::ofstream::out | std::ofstream::trunc);
+
+    // 关闭输出流
+    out.close();
+}
+
 int main(int argc, char* argv[]) {
-    if (argc != 2) {
+    if (argc < 2) {
         std::cout << "Usage: " << argv[0] << " folder_path\n";
         return EXIT_FAILURE;
     }
+    if(argc >=3){
+        out_put_file_path = argv[2];
+    }else{
+        out_put_file_path = "all_internal_counters.csv";
+    }
+    clearFile(out_put_file_path);
+    std::ofstream out(out_put_file_path, std::ios_base::app);
+
+    if (!out.is_open()) {
+        std::cout << "Could not open file: " << out_put_file_path << std::endl;
+        return 11;
+    }
+
+    // 写入文件内容
+    out << CSV_HEAD << std::endl;
+
+    // 关闭文件
+    out.close();
 
     std::string folder = argv[1];
     std::string pattern = ".txt";
