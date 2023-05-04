@@ -68,7 +68,7 @@ void openFile(ic_file icFile) {
     std::smatch res2;
     std::smatch res3;
     for(int i=0;i<all_lines.size(); i++){
-        if(i==0 || all_lines[i] == "====="){
+        if(i+6<all_lines.size() &&(i==0 || all_lines[i] == "=====")){
             if(std::regex_match(all_lines[i+1], res1, time_pattern)
                     &&all_lines[i+2] == "-"
                     &&std::regex_match(all_lines[i+3], res2, ic_pattern)
