@@ -37,11 +37,13 @@ int main(){
     double expect_avg=0;
     for(int i=1; i<= n; i++){
         cout << i << "\t";
+        double line_expect_avg=0;
         for(int j=1;j<=n;j++){
             cout << profit_matrix[i][j] << "\t";
             expect_avg += (1.0/i-1.0/(i+1)) * (1.0/j-1.0/(j+1)) * profit_matrix[i][j];
+            line_expect_avg += (1.0/i-1.0/(i+1)) * (1.0/j-1.0/(j+1)) * profit_matrix[i][j];
         }
-        cout << endl;
+        cout << line_expect_avg << endl;
     }
     cout << expect_avg << endl;
 }
